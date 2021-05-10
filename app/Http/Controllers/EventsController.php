@@ -8,7 +8,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Date;
-
+use Illuminate\Database\Eloquent\Builder;
 class EventsController extends BaseController
 {
     /*
@@ -181,6 +181,15 @@ class EventsController extends BaseController
      */
 
     public function getFutureEventsWithWorkshops() {
-        throw new \Exception('implement in coding task 2');
+        try {
+            $currentDate = date('Y-m-d');
+            $events =  Event::whereHas('workshops',function(Builder $query) use ($currentDate){
+                $query->where('start', '>',$currentDate);
+            })->with('workshops')->get();
+            return response()->json($events,200);
+        }catch(Exception $e) {
+            return response()->json(['message' => $e->getMessage()],500);
+        }
+
     }
 }
